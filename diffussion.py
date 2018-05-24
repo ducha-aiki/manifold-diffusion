@@ -34,7 +34,8 @@ def cg_diffusion(qsims, Wn, alpha = 0.99, maxiter = 20, tol = 1e-6):
     Wnn = eye(Wn.shape[0]) - alpha * Wn
     out_sims = []
     for i in range(qsims.shape[0]):
-        f,inf = s_linalg.cg(Wnn, qsims[i,:], tol=tol, maxiter=maxiter)
+        #f,inf = s_linalg.cg(Wnn, qsims[i,:], tol=tol, maxiter=maxiter)
+        f,inf = s_linalg.minres(Wnn, qsims[i,:], tol=tol, maxiter=maxiter)
         out_sims.append(f.reshape(-1,1))
     out_sims = np.concatenate(out_sims, axis = 1)
     ranks = np.argsort(-out_sims, axis = 0)
