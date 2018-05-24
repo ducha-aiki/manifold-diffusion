@@ -30,7 +30,7 @@ def topK_W(G, K = 100):
     G = np.minimum(G, G.T)
     return G
 
-def cg_diffusion(qsims, Wn, alpha = 0.99, maxiter = 20, tol = 1e-6):
+def cg_diffusion(qsims, Wn, alpha = 0.99, maxiter = 10, tol = 1e-3):
     Wnn = eye(Wn.shape[0]) - alpha * Wn
     out_sims = []
     for i in range(qsims.shape[0]):
