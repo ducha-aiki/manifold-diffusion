@@ -48,7 +48,6 @@ K = 100 # approx 50 mutual nns
 QUERYKNN = 10
 R = 2000
 alpha = 0.9
-CORRECTION = True
 
 from diffussion import *
 
@@ -70,9 +69,9 @@ Wn = normalize_connection_graph(W)
 
 plain_ranks = np.argsort(-sim, axis=0)
 cg_ranks =  cg_diffusion(qsim, Wn, alpha)
-fast_spectral_ranks = fsr_rankR(qsim, Wn, alpha, R, CORRECTION)
+fast_spectral_ranks = fsr_rankR(qsim, Wn, alpha, R)
 
-alg_names = ['Plain', 'Conjugate gradient',  'Spectral K=100, R=1000']
+alg_names = ['Plain', 'Conjugate gradient',  'Spectral R=2000']
 alg_ranks = [plain_ranks, cg_ranks, fast_spectral_ranks ]
 for rn in range(len(alg_names)):
     ranks = alg_ranks[rn]

@@ -40,20 +40,17 @@ def cg_diffusion(qsims, Wn, alpha = 0.99, maxiter = 20, tol = 1e-6):
     ranks = np.argsort(-out_sims, axis = 0)
     return ranks
 
-def fsr_rankR(qsims, Wn, alpha = 0.99, R = 2000, do_correction = True):
+def fsr_rankR(qsims, Wn, alpha = 0.99, R = 2000):
     vals, vecs = s_linalg.eigsh(Wn, k = R)
     p2 = diags((1.0 - alpha) / (1.0 - alpha*vals))
     vc = csr_matrix(vecs)
     p3 =  vc.dot(p2)
     vc_norm =  (vc.multiply(vc)).sum(axis = 0)
-    correct_coef = csr_matrix(1 - vc_norm).dot(vc.T).T
     out_sims = []
     for i in range(qsims.shape[0]):
         qsims_sparse = csr_matrix(qsims[i:i+1,:])
         p1 =(vc.T).dot(qsims_sparse.T)
         diff_sim = csr_matrix(p3)*csr_matrix(p1)
-        if do_correction:
-            diff_sim = np.array(diff_sim) - np.array(correct_coef)
         out_sims.append(diff_sim.todense().reshape(-1,1))
     out_sims = np.concatenate(out_sims, axis = 1)
     ranks = np.argsort(-out_sims, axis = 0)
