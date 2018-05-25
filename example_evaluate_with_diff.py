@@ -62,17 +62,18 @@ for i in range(len(qsim)):
     qsim[i,sortidxs[i,QUERYKNN:]] = 0
 
 qsim = sim_kernel(qsim)
-
-W = sim_kernel(np.dot(X.T, X)).T
+A = np.dot(X.T, X)
+W = sim_kernel(A).T
 W = topK_W(W, K)
 Wn = normalize_connection_graph(W)
 
 plain_ranks = np.argsort(-sim, axis=0)
 cg_ranks =  cg_diffusion(qsim, Wn, alpha)
+cg_trunk_ranks =  dfs_trunk(sim, A, alpha = alpha, QUERYKNN = QUERYKNN )
 fast_spectral_ranks = fsr_rankR(qsim, Wn, alpha, R)
 
-alg_names = ['Plain', 'Conjugate gradient',  'Spectral R=2000']
-alg_ranks = [plain_ranks, cg_ranks, fast_spectral_ranks ]
+alg_names = ['Plain', 'Diffusion cg', 'Diffusion trunkated',  'Spectral R=2000']
+alg_ranks = [plain_ranks, cg_ranks,cg_trunk_ranks,  fast_spectral_ranks ]
 for rn in range(len(alg_names)):
     ranks = alg_ranks[rn]
     name = alg_names[rn]

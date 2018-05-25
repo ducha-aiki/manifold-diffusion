@@ -29,6 +29,38 @@ def topK_W(G, K = 100):
         G[i,sortidxs[i,K:]] = 0
     G = np.minimum(G, G.T)
     return G
+def find_trunc_graph(qs, W, levels = 3):
+    needed_idxs = []
+    needed_idxs = list(np.nonzero(qs > 0)[0])
+    for l in range(levels):
+        idid = W.nonzero()[1]
+        needed_idxs.extend(list(idid))
+        needed_idxs =list(set(needed_idxs))
+    return np.array(needed_idxs), W[needed_idxs,:][:,needed_idxs]
+
+def dfs_trunk(sim, A,alpha = 0.99, QUERYKNN = 10, maxiter = 8, K = 100, tol = 1e-3):
+    qsim = sim_kernel(sim).T
+    sortidxs = np.argsort(-qsim, axis = 1)
+    for i in range(len(qsim)):
+        qsim[i,sortidxs[i,QUERYKNN:]] = 0
+    qsims = sim_kernel(qsim)
+    W = sim_kernel(A)
+    W = csr_matrix(topK_W(W, K))
+    out_ranks = []
+    t =time()
+    for i in range(qsims.shape[0]):
+        qs =  qsims[i,:]
+        tt = time() 
+        w_idxs, W_trunk = find_trunc_graph(qs, W, 2);
+        Wn = normalize_connection_graph(W_trunk)
+        Wnn = eye(Wn.shape[0]) - alpha * Wn
+        f,inf = s_linalg.minres(Wnn, qs[w_idxs], tol=tol, maxiter=maxiter)
+        ranks = w_idxs[np.argsort(-f.reshape(-1))]
+        missing = np.setdiff1d(np.arange(A.shape[1]), ranks)
+        out_ranks.append(np.concatenate([ranks.reshape(-1,1), missing.reshape(-1,1)], axis = 0))
+    print time() -t, 'qtime'
+    out_ranks = np.concatenate(out_ranks, axis = 1)
+    return out_ranks
 
 def cg_diffusion(qsims, Wn, alpha = 0.99, maxiter = 10, tol = 1e-3):
     Wnn = eye(Wn.shape[0]) - alpha * Wn
