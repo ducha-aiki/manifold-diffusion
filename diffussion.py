@@ -58,7 +58,7 @@ def dfs_trunk(sim, A,alpha = 0.99, QUERYKNN = 10, maxiter = 8, K = 100, tol = 1e
         ranks = w_idxs[np.argsort(-f.reshape(-1))]
         missing = np.setdiff1d(np.arange(A.shape[1]), ranks)
         out_ranks.append(np.concatenate([ranks.reshape(-1,1), missing.reshape(-1,1)], axis = 0))
-    print time() -t, 'qtime'
+    #print time() -t, 'qtime'
     out_ranks = np.concatenate(out_ranks, axis = 1)
     return out_ranks
 
